@@ -38,7 +38,7 @@ public class SpringBootDemoApplication {
 
 				// Пример поиска
 				System.out.println("\nПользователи из Москвы:");
-				repository.findByCityOfLiving("Москва").forEach(System.out::println);
+				repository.findByCity("Москва").forEach(System.out::println);
 
 				System.out.println("\nПользователи младше 30 лет:");
 				repository.findByAgeLessThan(30).forEach(System.out::println);

@@ -12,7 +12,7 @@ import java.util.List;
 public interface PersonRepository extends JpaRepository<Person, Person.PersonId> {
 
     // Поиск по городу проживания
-    List<Person> findByCityOfLiving(String city);
+    List<Person> findByCity(String city);
 
     // Поиск по возрасту меньше указанного
     List<Person> findByAgeLessThan(int age);

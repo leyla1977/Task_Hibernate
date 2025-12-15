@@ -44,7 +44,7 @@ public class PersonController {
 
     @GetMapping("/city/{city}")
     public List<Person> getPersonsByCity(@PathVariable String city) {
-        return personRepository.findByCityOfLiving(city);
+        return personRepository.findByCity(city);
     }
 
     @GetMapping("/age-less-than/{age}")

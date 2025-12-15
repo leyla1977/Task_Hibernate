@@ -25,18 +25,18 @@ public class Person {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "city_of_living")
-    private String cityOfLiving;
+    @Column(name = "city")
+    private String city;
 
     // Конструкторы
     public Person() {}
 
-    public Person(String name, String surname, int age, String phoneNumber, String cityOfLiving) {
+    public Person(String name, String surname, int age, String phoneNumber, String city) {
         this.name = name;
         this.surname = surname;
         this.age = age;
         this.phoneNumber = phoneNumber;
-        this.cityOfLiving = cityOfLiving;
+        this.city = city;
     }
 
     // Геттеры и сеттеры
@@ -52,22 +52,22 @@ public class Person {
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    public String getCityOfLiving() { return cityOfLiving; }
-    public void setCityOfLiving(String cityOfLiving) { this.cityOfLiving = cityOfLiving; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
     @Override
     public String toString() {
         return "Person{name='" + name + "', surname='" + surname + "', age=" + age +
-                ", phoneNumber='" + phoneNumber + "', city='" + cityOfLiving + "'}";
+                ", phoneNumber='" + phoneNumber + "', city='" + city + "'}";
     }
 
-    // ВАЖНО: Класс должен быть public static
+
     public static class PersonId implements Serializable {
         private String name;
         private String surname;
         private int age;
 
-        // Обязательно нужен конструктор без параметров
+
         public PersonId() {}
 
         public PersonId(String name, String surname, int age) {
