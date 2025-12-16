@@ -1,14 +1,13 @@
 package ru.netology.springBootDemo.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-
 
 @Entity
 @Table(name = "PERSONS")
 @IdClass(Person.PersonId.class)
-public class Person {
+public class Person implements Serializable {
 
     @Id
     @Column(name = "name", nullable = false)
@@ -61,12 +60,11 @@ public class Person {
                 ", phoneNumber='" + phoneNumber + "', city='" + city + "'}";
     }
 
-
+    // Вложенный класс для составного ключа
     public static class PersonId implements Serializable {
         private String name;
         private String surname;
         private int age;
-
 
         public PersonId() {}
 
@@ -76,7 +74,7 @@ public class Person {
             this.age = age;
         }
 
-        // Геттеры и сеттеры для полей ключа
+        // Геттеры и сеттеры
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
 
@@ -99,11 +97,6 @@ public class Person {
         @Override
         public int hashCode() {
             return Objects.hash(name, surname, age);
-        }
-
-        @Override
-        public String toString() {
-            return "PersonId{name='" + name + "', surname='" + surname + "', age=" + age + "}";
         }
     }
 }
