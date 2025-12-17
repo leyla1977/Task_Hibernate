@@ -16,6 +16,7 @@ Driver Class = org.h2.Driver
 User Name = sa
 
 password = 
+
 В окне вставить:
 SELECT * FROM PERSONS WHERE city = 'Москва'; 
 
