@@ -16,6 +16,15 @@
 Поиск по начальной букве: http://localhost:8080/api/persons/name-starts-with?prefix=И
 
 http://localhost:8080/h2-console/
+
+url = jdbc:h2:mem:testdb
+
+Driver Class = org.h2.Driver
+
+User Name = sa
+
+password = 
+
 SELECT * FROM PERSONS WHERE city = 'Moscow';
 SELECT * FROM PERSONS WHERE age < 30;
 SELECT * FROM PERSONS WHERE name = 'Ivan' AND surname = 'Ivanov';
