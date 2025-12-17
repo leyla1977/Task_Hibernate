@@ -39,18 +39,8 @@ public class PersonController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 3. Создать нового пользователя
-    @PostMapping
-    public ResponseEntity<Person> createPerson(@RequestBody Person person) {
-        try {
-            Person savedPerson = personRepository.save(person);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedPerson);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
 
-    // 4. Обновить существующего пользователя
+    // 3. Обновить пользователя
     @PutMapping("/{name}/{surname}/{age}")
     public ResponseEntity<Person> updatePerson(
             @PathVariable String name,
@@ -62,69 +52,32 @@ public class PersonController {
 
         return personRepository.findById(id)
                 .map(existingPerson -> {
-                    // Обновляем поля, кроме составного ключа
-                    if (personDetails.getPhoneNumber()!= null) {
-                        existingPerson.setPhoneNumber(personDetails.getPhoneNumber());
-                    }
-                    if (personDetails.getCity() != null) {
-                        existingPerson.setCity(personDetails.getCity());
-                    }
-                    if (personDetails.getAge() != age) {
-                        existingPerson.setAge(personDetails.getAge());
-                        // Если возраст изменился, нужно создать новый ID
-                        Person updatedPerson = new Person(
-                                existingPerson.getName(),
-                                existingPerson.getSurname(),
-                                personDetails.getAge(),
-                                existingPerson.getPhoneNumber(),
-                                existingPerson.getCity()
-                        );
-                        // Удаляем старую запись и сохраняем новую
-                        personRepository.delete(existingPerson);
-                        return ResponseEntity.ok(personRepository.save(updatedPerson));
-                    }
-                    return ResponseEntity.ok(personRepository.save(existingPerson));
+                    existingPerson.setPhoneNumber(personDetails.getPhoneNumber());
+                    existingPerson.setCity(personDetails.getCity());
+                    Person updatedPerson = personRepository.save(existingPerson);
+                    return ResponseEntity.ok(updatedPerson);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 5. Удалить пользователя
-    @DeleteMapping("/{name}/{surname}/{age}")
-    public ResponseEntity<Void> deletePerson(
-            @PathVariable String name,
-            @PathVariable String surname,
-            @PathVariable int age) {
 
-        Person.PersonId id = new Person.PersonId(name, surname, age);
-
-        if (personRepository.existsById(id)) {
-            personRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    // 6. Получить пользователей по городу (новый метод)
+    // 4. Поиск по городу (JPQL) - GET /api/persons/city/{city}
     @GetMapping("/city/{city}")
     public ResponseEntity<List<Person>> getPersonsByCity(@PathVariable String city) {
         List<Person> persons = personRepository.findByCity(city);
-        if (persons.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(persons);
+        return persons.isEmpty()
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(persons);
     }
 
-    // 7. Получить пользователей младше указанного возраста с сортировкой (новый метод)
+    // 5. Поиск по возрасту с сортировкой (JPQL) - GET /api/persons/age-less-than/{age}
     @GetMapping("/age-less-than/{age}")
     public ResponseEntity<List<Person>> getPersonsAgeLessThan(@PathVariable int age) {
-        List<Person> persons = personRepository.findByAgeLessThan(age);
-        if (persons.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        List<Person> persons = personRepository.findByAgeLessThanOrderByAgeAsc(age);
         return ResponseEntity.ok(persons);
     }
 
-    // 8. Найти пользователя по имени и фамилии (новый метод, возвращает Optional)
+    // 6. Поиск по имени и фамилии (JPQL) - GET /api/persons/search
     @GetMapping("/search")
     public ResponseEntity<Person> getPersonByNameAndSurname(
             @RequestParam String name,
@@ -135,13 +88,49 @@ public class PersonController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 9. Получить пользователей по городу с сортировкой по имени
-    @GetMapping("/city/{city}/sorted")
-    public ResponseEntity<List<Person>> getPersonsByCitySorted(@PathVariable String city) {
-        List<Person> persons = personRepository.findByCity(city);
-        if (persons.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    // 7. Получить всех с сортировкой по имени (JPQL) - GET /api/persons/sorted
+    @GetMapping("/sorted")
+    public ResponseEntity<List<Person>> getAllPersonsSorted() {
+        List<Person> persons = personRepository.findAllOrderByName();
+        return ResponseEntity.ok(persons);
+    }
+
+    // 8. Поиск по телефону (JPQL) - GET /api/persons/search/phone
+    @GetMapping("/search/phone")
+    public ResponseEntity<List<Person>> searchByPhone(@RequestParam String phonePart) {
+        List<Person> persons = personRepository.findByPhoneContaining(phonePart);
+        return ResponseEntity.ok(persons);
+    }
+
+    // 9. Поиск по нескольким городам (JPQL) - GET /api/persons/cities
+    @GetMapping("/cities")
+    public ResponseEntity<List<Person>> getPersonsByCities(@RequestParam List<String> cities) {
+        List<Person> persons = personRepository.findByCities(cities);
+        return ResponseEntity.ok(persons);
+    }
+
+
+    // 10. Поиск по диапазону возрастов (JPQL) - GET /api/persons/age-range
+    @GetMapping("/age-range")
+    public ResponseEntity<List<Person>> getPersonsByAgeRange(
+            @RequestParam int minAge,
+            @RequestParam int maxAge) {
+
+        List<Person> persons = personRepository.findByAgeBetween(minAge, maxAge);
+        return ResponseEntity.ok(persons);
+    }
+
+    // 11. Поиск самого старшего пользователя (JPQL) - GET /api/persons/oldest
+    @GetMapping("/oldest")
+    public ResponseEntity<List<Person>> getOldestPerson() {
+        List<Person> persons = personRepository.findOldestPerson();
+        return ResponseEntity.ok(persons);
+    }
+
+    // 12. Поиск по  букве имени (JPQL) - GET /api/persons/name-contains-with
+    @GetMapping("/name-starts-with")
+    public ResponseEntity<List<Person>> findByNameStartedBy(@RequestParam String prefix) {
+        List<Person> persons = personRepository.findByNameContained(prefix);
         return ResponseEntity.ok(persons);
     }
 
